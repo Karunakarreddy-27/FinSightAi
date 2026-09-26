@@ -2,6 +2,7 @@ services:
   - type: web
     name: finsight
     runtime: python
+    plan: free
     buildCommand: pip install -r backend/requirements.txt
     startCommand: gunicorn --chdir backend "app:create_app()"
     envVars:
