@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: finsight
+    runtime: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: gunicorn --chdir backend "app:create_app()"
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DATABASE
+        value: finsight
+      - key: FLASK_SECRET_KEY
+        generateValue: true
+      - key: COOKIE_SECURE
+        value: "true"

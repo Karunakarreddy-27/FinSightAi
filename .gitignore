@@ -1,0 +1,21 @@
+# Python environments and generated files
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.log
+
+# Local secrets, databases, and user generated order data
+.env
+.env.*
+!.env.example
+backend/data/*.sqlite3
+backend/data/*.sqlite3-*
+backend/data/local_flask_secret.key
+backend/data/purchase_orders.json
+
+# Editor / operating system files
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinSight AI — Autonomous Inventory & Workforce Intelligence</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom Theme CSS -->
+    <link href="assets/css/style.css?v=20260926-trend-graphs" rel="stylesheet">
+</head>
+<body>
+
+<div class="app-wrapper">
+    
+    <!-- SIDEBAR (Spark Theme Dark Navy Slate) -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="sidebar-brand">
+                <div class="brand-icon">
+                    <i class="bi bi-cpu-fill"></i>
+                </div>
+                <div class="sidebar-brand-name">FinSight <span class="text-primary">AI</span></div>
+            </a>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li class="menu-category">Intelligence Platform</li>
+            
+            <li class="nav-item">
+                <a href="#inventory-section" class="nav-link active" id="nav-inventory" onclick="showSection('inventory-section'); return false;">
+                    <i class="bi bi-box-seam"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a href="#forecast-section" class="nav-link" id="nav-forecast" onclick="showSection('forecast-section'); return false;">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Demand Forecast</span>
+                    <span class="badge bg-primary-subtle text-primary ms-auto" style="font-size: 0.65rem;">ML</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="#seasonal-section" class="nav-link" id="nav-seasonal" onclick="showSection('seasonal-section'); return false;">
+                    <i class="bi bi-calendar2-event"></i>
+                    <span>Seasonal Demand Planner</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="#xai-section" class="nav-link" id="nav-xai" onclick="showSection('xai-section'); return false;">
+                    <i class="bi bi-search"></i>
+                    <span>AI Factor Analysis (XAI)</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="#reorder-section" class="nav-link" id="nav-reorder" onclick="showSection('reorder-section'); return false;">
+                    <i class="bi bi-lightning-charge-fill text-warning"></i>
+                    <span>Autonomous Reorders</span>
+                    <span class="badge bg-danger ms-auto" id="sidebar-reorder-badge" style="font-size: 0.65rem;">4 Urg</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="#po-section" class="nav-link" id="nav-po" onclick="showSection('po-section'); return false;">
+                    <i class="bi bi-receipt"></i>
+                    <span>Purchase Orders</span>
+                    <span class="badge bg-light text-dark ms-auto" id="sidebar-po-badge" style="font-size: 0.65rem;">5</span>
+                </a>
+            </li>
+
+        </ul>
+
+        <!-- Sidebar Footer & Mode Indicator -->
+        <div class="sidebar-footer">
+            <div class="user-card mb-2">
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px; font-weight: 600; font-size: 0.8rem;">
+                    <span id="dashboard-user-initials">U</span>
+                </div>
+                <div class="overflow-hidden">
+                    <div id="dashboard-user-name" class="text-white small fw-semibold text-truncate" style="font-size: 0.8rem;">User</div>
+                    <div id="dashboard-business-name" class="text-muted text-truncate" style="font-size: 0.68rem;">Business workspace</div>
+                </div>
+            </div>
+            
+            <div class="d-flex align-items-center justify-content-between pt-1">
+                <span class="badge bg-primary-subtle text-primary" style="font-size: 0.65rem;">
+                    <i class="bi bi-building me-1"></i>Business Mode
+                </span>
+                <a href="#" id="logout-link" class="text-muted small text-decoration-none" title="Log out">
+                    <i class="bi bi-box-arrow-right fs-6"></i>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        
+        <!-- TOP NAVBAR -->
+        <header class="top-navbar">
+            <div class="d-flex align-items-center">
+                <button class="btn btn-link text-dark p-0 me-3 d-lg-none" id="sidebar-toggle">
+                    <i class="bi bi-list fs-3"></i>
+                </button>
+                <div class="d-none d-md-block text-truncate">
+                    <span class="text-muted small">Section:</span>
+                    <span class="fw-semibold ms-1 small text-dark" id="top-section-title">📦 Inventory Intelligence Overview</span>
+                </div>
+            </div>
+
+            <!-- Global Live Search -->
+            <div class="search-box d-none d-lg-block">
+                <i class="bi bi-search"></i>
+                <input type="text" class="form-control" id="global-search-input" placeholder="Search your products..." autocomplete="off" aria-label="Search your products" aria-controls="global-search-results" aria-expanded="false">
+                <div id="global-search-results" class="global-search-results d-none" role="listbox" aria-label="Matching products"></div>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <!-- Autonomous Indicator Pill -->
+                <div class="autonomous-pill d-none d-sm-inline-flex">
+                    <span class="pulse-dot"></span>
+                    <span>AI Engine: Autonomous</span>
+                </div>
+
+                <!-- Branch / Location Selector -->
+                <select class="form-select form-select-sm" id="branch-filter" style="width: 145px;">
+                    <option value="all" selected>All Hubs (India)</option>
+                    <option value="mumbai">Mumbai Hub</option>
+                    <option value="bengaluru">Bengaluru Hub</option>
+                    <option value="delhi">Delhi NCR Hub</option>
+                </select>
+
+                <!-- Notifications Dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-light rounded-circle p-1 px-2 position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 32px; height: 32px;">
+                        <i class="bi bi-bell" style="font-size: 0.85rem;"></i>
+                        <span id="notification-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" style="font-size: 0.6rem;">0</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" style="width: 300px;">
+                        <li class="dropdown-header fw-bold text-dark px-2">Autonomous Stockout Alerts</li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li id="notification-list"></li>
+                        <li id="notification-empty" class="small text-muted px-3 py-2">No active stockout alerts.</li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li class="text-center"><a href="#reorder-section" onclick="showSection('reorder-section'); return false;" class="small text-primary text-decoration-none fw-medium">View All Reorder Triggers</a></li>
+                    </ul>
+                </div>
+
+                <!-- Personal / Business Mode Switcher -->
+                <button class="btn btn-outline-secondary btn-sm" id="mode-switch-btn" title="Toggle Mode">
+                    <i class="bi bi-arrow-left-right me-1"></i>Personal
+                </button>
+
+            </div>
+        </header>
+
+        <!-- PAGE BODY (Only active section is displayed) -->
+        <main class="page-body">
+            
+            <!-- ============================================================ -->
+            <!-- SECTION 1: INVENTORY INTELLIGENCE HERO DASHBOARD             -->
+            <!-- ============================================================ -->
+            <section id="inventory-section" class="app-section active mb-4">
+                
+                <!-- Urgent Action Alerts Banner -->
+                <div class="urgent-banner mb-3 d-none" id="urgent-alert-banner">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 38px; height: 38px;">
+                            <i class="bi bi-exclamation-triangle-fill fs-6"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0 text-danger" id="urgent-alert-title" style="font-size: 0.9rem;">Stockout warning</h6>
+                            <p class="mb-0 text-muted small" id="urgent-alert-description" style="font-size: 0.78rem;">
+                                Demand velocity exceeds replenishment lead time window. Projected revenue at risk: <strong class="text-dark">₹3,84,000</strong>.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-2 mt-md-0 flex-shrink-0">
+                        <button class="btn btn-danger btn-sm text-nowrap" onclick="showSection('reorder-section')">
+                            <i class="bi bi-lightning-charge me-1"></i>Review Reorders
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('urgent-alert-banner').style.display='none'">
+                            Dismiss
+                        </button>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning d-none d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3" id="seasonal-reminder-banner" role="status">
+                    <div><strong id="seasonal-reminder-title">Seasonal demand is approaching</strong><div class="small" id="seasonal-reminder-description"></div></div>
+                    <button class="btn btn-warning btn-sm text-nowrap" onclick="showSection('seasonal-section')"><i class="bi bi-calendar2-event me-1"></i>View seasonal plan</button>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h5 class="fw-bold mb-0 text-dark" style="font-size: 1.15rem;">📦 Inventory Intelligence Overview</h5>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="text-end text-muted small d-none d-md-block">
+                            <i class="bi bi-arrow-repeat text-success me-1"></i>Continuous Autonomous Engine
+                        </div>
+                        <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#add-product-modal">
+                            <i class="bi bi-plus-lg me-1"></i>Add stock
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 5 High-Level KPIs in Perfect Equal-Height CSS Grid -->
+                <div class="kpi-row-5">
+                    <div class="stat-card" role="button" tabindex="0" data-kpi-filter="all" aria-label="Show all active products">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="stat-title">Total Active Stocks</div>
+                                <div class="stat-value" id="kpi-total-skus">1,420</div>
+                            </div>
+                            <div class="icon-shape bg-primary-subtle text-primary">
+                                <i class="bi bi-boxes"></i>
+                            </div>
+                        </div>
+                        <div class="stat-trend text-muted">
+                            <span class="text-success"><i class="bi bi-arrow-up"></i> +4.2%</span> catalog
+                        </div>
+                    </div>
+
+                    <div class="stat-card" role="button" tabindex="0" data-kpi-filter="low-stock" aria-label="Show low stock products">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="stat-title">Low Stock Alert</div>
+                                <div class="stat-value text-warning" id="kpi-low-stock">18</div>
+                            </div>
+                            <div class="icon-shape bg-warning-subtle text-warning">
+                                <i class="bi bi-shield-exclamation"></i>
+                            </div>
+                        </div>
+                        <div class="stat-trend text-muted">
+                            Below dynamic safety buffer
+                        </div>
+                    </div>
+
+                    <div class="stat-card" role="button" tabindex="0" data-kpi-filter="critical" aria-label="Show products at imminent stockout risk">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="stat-title">Stockout Imminent</div>
+                                <div class="stat-value text-danger" id="kpi-at-risk">6</div>
+                            </div>
+                            <div class="icon-shape bg-danger-subtle text-danger">
+                                <i class="bi bi-alarm-fill"></i>
+                            </div>
+                        </div>
+                        <div class="stat-trend text-danger">
+                            <i class="bi bi-exclamation-circle me-1"></i>Depletes < 7 Days
+                        </div>
+                    </div>
+
+                    <div class="stat-card" role="button" tabindex="0" data-kpi-filter="overstocked" aria-label="Show overstocked products">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="stat-title">Overstocked Stocks</div>
+                                <div class="stat-value" id="kpi-overstocked">24</div>
+                            </div>
+                            <div class="icon-shape bg-info-subtle text-info">
+                                <i class="bi bi-archive-fill"></i>
+                            </div>
+                        </div>
+                        <div class="stat-trend text-muted">
+                            ₹8.2L locked working capital
+                        </div>
+                    </div>
+
+                    <div class="stat-card" role="button" tabindex="0" data-kpi-filter="reorder-capital" aria-label="Show products contributing to AI reorder capital" style="border-left: 3px solid var(--primary-color);">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="stat-title">AI Reorder Capital</div>
+                                <div class="stat-value text-primary" id="kpi-reorder-capital">₹7,44,000</div>
+                            </div>
+                            <div class="icon-shape bg-primary text-white">
+                                <i class="bi bi-currency-rupee"></i>
+                            </div>
+                        </div>
+                        <div class="stat-trend text-success fw-bold">
+                            <i class="bi bi-check-circle-fill me-1"></i>Autonomously Computed
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visual Analytics Row (Matching Heights) -->
+                <div class="row g-3 mb-3">
+                    <!-- Chart 1: Current Stock vs 30-Day Predicted Demand -->
+                    <div class="col-lg-8">
+                        <div class="content-card h-100">
+                            <div class="card-header">
+                                <div>
+                                    <h6 class="card-title">Current Physical Stock vs. 30-Day ML Predicted Demand</h6>
+                                    <span class="text-muted small" style="font-size: 0.72rem;">Deficit gap indicates urgent purchase requirement</span>
+                                    <details class="chart-product-picker mt-2" id="chart-product-picker" hidden>
+                                        <summary class="btn btn-sm btn-outline-secondary" id="chart-product-picker-label">Choose products</summary>
+                                        <div class="chart-product-options" id="chart-product-options"></div>
+                                    </details>
+                                </div>
+                                <span class="badge bg-primary-subtle text-primary">Live Model Output</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-stage" style="height: 250px;">
+                                    <canvas id="stockDemandChart"></canvas>
+                                    <div class="chart-empty-state" id="stock-demand-empty">Add products to your inventory to compare stock with predicted demand.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart 2: Inventory Health & Category Breakdown -->
+                    <div class="col-lg-4">
+                        <div class="content-card h-100">
+                            <div class="card-header">
+                                <h6 class="card-title" id="category-chart-title">30-Day Category Demand Share</h6>
+                            <span id="category-segment-count" class="badge bg-light text-dark">0 Segments</span>
+                            </div>
+                            <div class="card-body d-flex flex-column justify-content-between">
+                                <div class="chart-stage" style="height: 165px; width: 100%;">
+                                    <canvas id="categoryChart"></canvas>
+                                    <div class="chart-empty-state" id="category-chart-empty">Add products to see demand by category.</div>
+                                </div>
+                                <div class="mt-2 w-100" id="category-demand-legend"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales leaders and slow-moving inventory -->
+                <div class="row g-3 mb-3">
+                    <div class="col-lg-7">
+                        <div class="content-card h-100">
+                            <div class="card-header flex-wrap gap-2">
+                                <div>
+                                    <h6 class="card-title mb-1">Top 5 Selling Products</h6>
+                                    <span class="text-muted small">Units sold in the selected period</span>
+                                </div>
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Sales period" id="top-selling-period">
+                                    <button type="button" class="btn btn-outline-primary" data-sales-days="1">1 day</button>
+                                    <button type="button" class="btn btn-outline-primary" data-sales-days="3">3 days</button>
+                                    <button type="button" class="btn btn-outline-primary" data-sales-days="7">7 days</button>
+                                    <button type="button" class="btn btn-outline-primary" data-sales-days="14">14 days</button>
+                                    <button type="button" class="btn btn-primary active" data-sales-days="30" aria-pressed="true">30 days</button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-stage" style="height: 250px;">
+                                    <canvas id="top-selling-chart" aria-label="Top five products by units sold"></canvas>
+                                    <div class="chart-empty-state" id="top-selling-empty">Record product sales to see best sellers for this period.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="content-card h-100">
+                            <div class="card-header">
+                                <div>
+                                    <h6 class="card-title mb-1">Slow-Moving Inventory</h6>
+                                    <span class="text-muted small">Products that sold 25% or less of current stock in 7 days</span>
+                                </div>
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Slow-moving sales trend period" id="slow-moving-period">
+                                    <button type="button" class="btn btn-primary active" data-slow-days="7" aria-pressed="true">7 days</button>
+                                    <button type="button" class="btn btn-outline-primary" data-slow-days="30" aria-pressed="false">30 days</button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-stage mb-3" style="height: 170px;">
+                                    <canvas id="slow-moving-chart" aria-label="Slow-moving product sales trend"></canvas>
+                                    <div class="chart-empty-state" id="slow-moving-chart-empty">No qualifying slow-moving products.</div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-custom align-middle mb-0">
+                                        <thead><tr><th>Product</th><th class="text-end">In stock</th><th class="text-end">Sold / stock (7d)</th></tr></thead>
+                                        <tbody id="slow-moving-tbody"></tbody>
+                                    </table>
+                                </div>
+                                <div class="chart-empty-state position-relative p-3" id="slow-moving-empty">No products sold 25% or less of stock in the last 7 days.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Module Jump Strip -->
+                <div class="quick-module-jump p-3 rounded border d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-primary text-white p-2 rounded"><i class="bi bi-arrow-right-circle"></i></span>
+                        <div>
+                            <div class="fw-semibold small text-dark">Jump Directly to Intelligence Submodules:</div>
+                            <div class="text-muted" >Click any section to inspect predictions, reorders, or workforce</div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button class="btn btn-outline-primary btn-sm" onclick="showSection('reorder-section')">
+                            <i class="bi bi-lightning-charge text-warning me-1"></i>Autonomous Reorders
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="showSection('forecast-section')">
+                            <i class="bi bi-graph-up-arrow me-1"></i>Demand Forecast Matrix
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="showSection('seasonal-section')">
+                            <i class="bi bi-calendar2-event me-1"></i>Seasonal Demand Planner
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="showSection('xai-section')">
+                            <i class="bi bi-search me-1"></i>Factor Analysis (XAI)
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="showSection('workforce-section')">
+                            <i class="bi bi-people-fill me-1"></i>Workforce Intelligence
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- UPCOMING HOLIDAY & SEASONAL DEMAND PLANNER -->
+            <section id="seasonal-section" class="app-section mb-4">
+                <div class="content-card">
+                    <div class="card-header flex-wrap gap-2">
+                        <div>
+                            <h5 class="card-title mb-0" style="font-size: 1.1rem;"><i class="bi bi-calendar2-event text-primary me-2"></i>Seasonal Demand Planner</h5>
+                            <span class="text-muted small">Only events in the next 30 days and products that match each event</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-primary small mb-3">
+                            <i class="bi bi-info-circle me-1"></i>Only products with a clear event match are listed. Extra demand is estimated during the 15-day event run-up; a stock gap also includes expected baseline demand until the event.
+                        </div>
+                        <div id="seasonal-event-list" aria-live="polite"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 2: AI PRODUCT DEMAND FORECAST MATRIX                 -->
+            <!-- ============================================================ -->
+            <section id="forecast-section" class="app-section mb-4">
+                <div class="content-card">
+                    <div class="card-header flex-wrap gap-2">
+                        <div>
+                            <h5 class="card-title mb-0" style="font-size: 1.1rem;">📈 AI Product Demand Forecast Matrix</h5>
+                            <span class="text-muted small" style="font-size: 0.72rem;">Multi-horizon forecasting with dynamic stockout risk indicators</span>
+                        </div>
+                        
+                        <!-- Forecast Controls & Horizon Switcher -->
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <span class="text-muted small fw-semibold">Horizon:</span>
+                            <div class="btn-group horizon-btn-group" role="group" id="horizon-selector">
+                                <button type="button" class="btn btn-outline-primary" data-horizon="1">24 Hours</button>
+                                <button type="button" class="btn btn-outline-primary" data-horizon="3">3 Days</button>
+                                <button type="button" class="btn btn-outline-primary" data-horizon="7">7 Days</button>
+                                <button type="button" class="btn btn-outline-primary" data-horizon="14">14 Days</button>
+                                <button type="button" class="btn btn-primary active" data-horizon="30">30 Days</button>
+                            </div>
+
+                            <select class="form-select form-select-sm" id="category-filter" style="width: 140px;">
+                                <option value="all">All Categories</option>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Clothing">Clothing</option>
+                                <option value="Groceries">Groceries</option>
+                                <option value="Furniture">Furniture</option>
+                                <option value="Toys">Toys</option>
+                                <option value="Other">Other</option>
+                            </select>
+
+                            <input type="text" class="form-control form-control-sm" id="forecast-search" placeholder="Filter stock/name..." style="width: 140px;">
+                            <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#add-product-modal"><i class="bi bi-plus-lg me-1"></i>Add stock</button>
+                        </div>
+                    </div>
+
+                    <div id="kpi-filter-summary" class="px-3 py-2 bg-primary-subtle text-primary small d-none" role="status">
+                        <span id="kpi-filter-summary-text"></span>
+                        <button id="clear-kpi-filter" class="btn btn-link btn-sm p-0 ms-2 align-baseline">Clear filter</button>
+                    </div>
+
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-custom align-middle" id="forecast-table">
+                                <thead>
+                                    <tr>
+                                        <th>Product Name & Stock ID</th>
+                                        <th>Category</th>
+                                        <th class="text-center">Current Stock</th>
+                                        <th class="text-center">ML Predicted Demand</th>
+                                        <th>Stockout Risk (%)</th>
+                                        <th class="text-center">AI Recommended Units</th>
+                                        <th>Priority</th>
+                                        <th class="text-end">Autonomous Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="forecast-tbody">
+                                    <!-- Rendered dynamically via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="forecast-product-trends" class="forecast-product-trends d-none" aria-live="polite"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 3: EXPLAINABLE AI (XAI) FACTOR ANALYSIS              -->
+            <!-- ============================================================ -->
+            <section id="xai-section" class="app-section mb-4">
+                <div class="content-card">
+                    <div class="card-header flex-wrap gap-2">
+                        <div>
+                            <h5 class="card-title mb-0" style="font-size: 1.1rem;">🔍 Explainable AI (XAI) Factor Analysis</h5>
+                            <span class="text-muted small" style="font-size: 0.72rem;">Product-specific inventory drivers and natural language reasoning</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-muted small">Your Products:</span>
+                            <select class="form-select form-select-sm" id="xai-stock-select" onchange="selectProductForXAI(this.value)" style="width: 220px;">
+                                <option value="">Loading your products…</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                            <div class="row g-4" id="xai-product-detail">
+                            <!-- Left: Stock Meta & Rationale -->
+                            <div class="col-lg-6">
+                                <div class="xai-summary-panel mb-3 d-flex align-items-center justify-content-between p-3 rounded border">
+                                    <div>
+                                        <div class="fw-bold text-dark fs-6" id="xai-product-name">Ultra-Wide Curved Monitor 34"</div>
+                                        <div class="text-muted small" id="xai-meta">Lead Time: 10 Days • Stock: 18 • Risk: 89%</div>
+                                    </div>
+                                    <span class="badge badge-pill-custom badge-critical" id="xai-risk-pill">89% Critical Risk</span>
+                                </div>
+
+                                <!-- Natural Language AI Rationale Box -->
+                                <div class="xai-rationale-panel p-3 rounded mb-3">
+                                    <div class="d-flex align-items-center mb-1 text-primary fw-semibold small">
+                                        <i class="bi bi-robot fs-6 me-2"></i>Autonomous AI Plain-English Rationale:
+                                    </div>
+                                    <p class="text-dark mb-0 lh-base" style="font-size: 0.85rem;" id="xai-narrative">
+                                        "Demand velocity is accelerating (+24% MoM). Existing 18 units will deplete in 4 days, well within the 10-day supplier replenishment window. An autonomous reorder of 60 units is necessary to prevent ₹3.82L in lost revenue."
+                                    </p>
+                                </div>
+
+                                <div class="xai-order-panel p-3 rounded border d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="small fw-semibold text-dark" id="xai-order-title">30-Day Replenishment Plan</div>
+                                        <div class="text-muted" id="xai-order-note" style="font-size: 0.72rem;">Order guidance for the selected product</div>
+                                    </div>
+                                    <button class="btn btn-primary btn-sm" id="xai-order-btn">
+                                        <i class="bi bi-cart-check me-1"></i><span id="xai-order-button-label">Create Purchase Order</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Right: Feature Importance Progress Bars -->
+                            <div class="col-lg-6">
+                                <h6 class="text-muted text-uppercase fw-semibold mb-3" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                                    Product-Specific Inventory Drivers (relative portfolio weights):
+                                </h6>
+
+                                <div class="factor-bar-wrapper mb-3">
+                                    <div class="factor-bar-info">
+                                        <span>Past Sales Trend & Velocity</span>
+                                        <span class="fw-bold text-primary" id="factor-sales">34%</span>
+                                    </div>
+                                    <div class="factor-progress">
+                                        <div class="progress-bar bg-primary" id="bar-sales" style="width: 34%;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="factor-bar-wrapper mb-3">
+                                    <div class="factor-bar-info">
+                                        <span>Stock Cover Pressure</span>
+                                        <span class="fw-bold text-info" id="factor-season">26%</span>
+                                    </div>
+                                    <div class="factor-progress">
+                                        <div class="progress-bar bg-info" id="bar-season" style="width: 26%;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="factor-bar-wrapper mb-3">
+                                    <div class="factor-bar-info">
+                                        <span>Supplier Lead Time & Buffer Requirements</span>
+                                        <span class="fw-bold text-warning" id="factor-lead">18%</span>
+                                    </div>
+                                    <div class="factor-progress">
+                                        <div class="progress-bar bg-warning" id="bar-lead" style="width: 18%;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="factor-bar-wrapper mb-3">
+                                    <div class="factor-bar-info">
+                                        <span>Unit Value Exposure</span>
+                                        <span class="fw-bold text-secondary" id="factor-price">13%</span>
+                                    </div>
+                                    <div class="factor-progress">
+                                        <div class="progress-bar bg-secondary" id="bar-price" style="width: 13%;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="factor-bar-wrapper mb-3">
+                                    <div class="factor-bar-info">
+                                        <span>30-Day Demand Exposure</span>
+                                        <span class="fw-bold text-dark" id="factor-category">9%</span>
+                                    </div>
+                                    <div class="factor-progress">
+                                        <div class="progress-bar bg-dark" id="bar-category" style="width: 9%;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="text-muted small pt-2 border-top">
+                                    <i class="bi bi-shield-check text-success me-1"></i>Driver weights compare this product with the inventory in your workspace.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-card mt-3">
+                    <div class="card-header">
+                        <div>
+                            <h6 class="card-title mb-0">Analysis of All Products</h6>
+                            <span class="text-muted small">Stock coverage, 30-day demand, risk, and reorder guidance for every product in your workspace.</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-custom align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th class="text-center">Current Stock</th>
+                                        <th class="text-center">30-Day Demand</th>
+                                        <th class="text-center">Coverage</th>
+                                        <th class="text-center">Stockout Risk</th>
+                                        <th class="text-center">Suggested Order</th>
+                                        <th>Analysis</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="xai-overview-tbody"></tbody>
+                            </table>
+                            <div id="xai-overview-empty" class="text-muted small text-center py-4 d-none">Add products to see their inventory analysis here.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 4: AUTONOMOUS AI REORDER ENGINE (HERO)               -->
+            <!-- ============================================================ -->
+            <section id="reorder-section" class="app-section mb-4">
+                <div class="content-card">
+                    <div class="card-header flex-wrap gap-2">
+                        <div>
+                            <div class="d-flex align-items-center gap-2">
+                                <h5 class="card-title mb-0" style="font-size: 1.1rem;">⚡ Autonomous AI Reorder Engine & Recommendations</h5>
+                                <span class="badge bg-success-subtle text-success">Zero Manual Sliders</span>
+                            </div>
+                            <span class="text-muted small" style="font-size: 0.72rem;">Pre-computed optimal purchase quantities to mitigate stockout before supplier cutoff</span>
+                        </div>
+                        <button class="btn btn-primary btn-sm" id="batch-approve-btn">
+                            <i class="bi bi-check2-all me-1"></i>Approve All Critical Orders
+                        </button>
+                    </div>
+
+                    <!-- Executive Summary Header Strip -->
+                    <div class="reorder-summary-strip px-3 py-2 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-danger rounded-circle p-2"><i class="bi bi-exclamation-triangle"></i></span>
+                            <div>
+                                <div class="fw-bold small text-dark"><span id="summary-reorder-count">4</span> Stocks Need Immediate Reorder</div>
+                                <div class="text-muted" style="font-size: 0.7rem;">Lead time window closing</div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="fw-bold small text-dark" id="summary-reorder-vol">185 Units</div>
+                            <div class="text-muted" style="font-size: 0.7rem;">Recommended Volume</div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold small text-primary" id="summary-reorder-cost">₹3,84,000</div>
+                            <div class="text-muted" style="font-size: 0.7rem;">Estimated Capital Outlay</div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-custom align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Product & Category</th>
+                                        <th>Stock vs Demand</th>
+                                        <th>Stockout Risk</th>
+                                        <th>Supplier & Lead Time</th>
+                                        <th class="text-center">AI Order</th>
+                                        <th>Est. Capital</th>
+                                        <th class="text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reorder-tbody">
+                                    <!-- Rendered dynamically via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 5: PURCHASE ORDER (PO) MANAGEMENT REGISTER           -->
+            <!-- ============================================================ -->
+            <section id="po-section" class="app-section mb-4">
+                <div class="content-card">
+                    <div class="card-header flex-wrap gap-2">
+                        <div>
+                            <h5 class="card-title mb-0" style="font-size: 1.1rem;">📝 Purchase Order (PO) Management Register</h5>
+                            <span class="text-muted small" style="font-size: 0.72rem;">Formal legal Purchase Order conversion and delivery status tracking</span>
+                        </div>
+                        
+                        <!-- Status Filter Tabs -->
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="btn-group btn-group-sm" role="group" id="po-status-filter">
+                                <button type="button" class="btn btn-outline-secondary active" data-status="all">All Orders</button>
+                                <button type="button" class="btn btn-outline-secondary" data-status="Pending Approval">Pending</button>
+                                <button type="button" class="btn btn-outline-secondary" data-status="Approved">Approved</button>
+                                <button type="button" class="btn btn-outline-secondary" data-status="Received">Received</button>
+                            </div>
+                            <button class="btn btn-outline-primary btn-sm" onclick="exportPOCsv()">
+                                <i class="bi bi-file-earmark-spreadsheet me-1"></i>CSV
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-custom align-middle" id="po-table">
+                                <thead>
+                                    <tr>
+                                        <th>PO Number</th>
+                                        <th>Date</th>
+                                        <th>Product & Qty</th>
+                                        <th>Supplier Name</th>
+                                        <th>Lead Time</th>
+                                        <th>Total Value (₹)</th>
+                                        <th>Status Flow</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="po-tbody">
+                                    <!-- Populated dynamically via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 6: WORKFORCE INTELLIGENCE & ACTIVE ROSTER            -->
+            <!-- ============================================================ -->
+            <section id="workforce-section" class="app-section mb-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h5 class="fw-bold mb-0 text-dark" style="font-size: 1.15rem;">🏢 Module 1: Workforce Intelligence & Predictive Staffing</h5>
+                        <p class="text-muted small mb-0">Floor presence, shift performance, and AI absenteeism shortage prediction</p>
+                    </div>
+                </div>
+
+                <!-- 5 Workforce KPIs in Perfect Equal-Height CSS Grid -->
+                <div class="kpi-row-5">
+                    <div class="stat-card">
+                        <div class="stat-title">Total Headcount</div>
+                        <div class="stat-value">84</div>
+                        <div class="stat-trend text-muted">Across 3 fulfillment hubs</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-title">Working Now</div>
+                        <div class="stat-value text-success">68</div>
+                        <div class="stat-trend text-success"><i class="bi bi-check-circle me-1"></i>81% Floor Presence</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-title">Scheduled Leave</div>
+                        <div class="stat-value text-info">7</div>
+                        <div class="stat-trend text-muted">Pre-approved PTO</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-title">Unscheduled Absent</div>
+                        <div class="stat-value text-danger">9</div>
+                        <div class="stat-trend text-danger"><i class="bi bi-arrow-up"></i> +2 over Tuesday avg</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-title">Productivity Index</div>
+                        <div class="stat-value text-primary">92.4%</div>
+                        <div class="stat-trend text-success"><i class="bi bi-graph-up-arrow me-1"></i>+3.2% vs last cycle</div>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <!-- AI Staffing Shortage Predictor -->
+                    <div class="col-lg-5">
+                        <div class="content-card h-100">
+                            <div class="card-header">
+                                <div>
+                                    <h6 class="card-title">🤖 AI Staffing Shortage Predictor</h6>
+                                    <span class="text-muted small" style="font-size: 0.72rem;">Predictive operational headcount model</span>
+                                </div>
+                                <span class="badge bg-warning-subtle text-warning">18% Shortage Risk</span>
+                            </div>
+                            <div class="card-body d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="d-flex align-items-center justify-content-between p-2 rounded mb-3" style="background: #f8fafc; border: 1px solid var(--border-color);">
+                                        <div>
+                                            <div class="text-muted" style="font-size: 0.72rem;">Tomorrow Expected Workforce</div>
+                                            <div class="fs-5 fw-bold text-dark">79 / 84 Associates</div>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge bg-warning text-dark px-2 py-1">18% Shortage Risk</span>
+                                            <div class="text-muted mt-1" style="font-size: 0.68rem;">Moderate Concern</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="p-2 px-3 rounded mb-3 bg-light border-start border-3 border-warning">
+                                        <div class="fw-semibold text-dark mb-1" style="font-size: 0.75rem;">
+                                            <i class="bi bi-exclamation-triangle text-warning me-1"></i>Staffing AI Rationale:
+                                        </div>
+                                        <p class="text-muted mb-0 lh-sm" style="font-size: 0.78rem;">
+                                            "Historical Friday absenteeism pattern (+42% weight) indicates possible bottleneck in Sorting & Dispatch Tier 2 during 15:00-19:00. Recommend moving 2 floating associates from Hub B."
+                                        </p>
+                                    </div>
+
+                                    <h6 class="text-muted text-uppercase fw-semibold mb-2" style="font-size: 0.68rem; letter-spacing: 0.05em;">
+                                        Absence Driver Influence:
+                                    </h6>
+                                    <div class="factor-bar-wrapper">
+                                        <div class="factor-bar-info">
+                                            <span>Historical Weekend/Friday Pattern</span>
+                                            <span class="fw-bold">42%</span>
+                                        </div>
+                                        <div class="factor-progress">
+                                            <div class="progress-bar bg-warning" style="width: 42%;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="factor-bar-wrapper">
+                                        <div class="factor-bar-info">
+                                            <span>Consecutive Shift Fatigue Index</span>
+                                            <span class="fw-bold">28%</span>
+                                        </div>
+                                        <div class="factor-progress">
+                                            <div class="progress-bar bg-info" style="width: 28%;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="factor-bar-wrapper">
+                                        <div class="factor-bar-info">
+                                            <span>Regional Transit / Local Overlaps</span>
+                                            <span class="fw-bold">19%</span>
+                                        </div>
+                                        <div class="factor-progress">
+                                            <div class="progress-bar bg-secondary" style="width: 19%;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="factor-bar-wrapper mb-0">
+                                        <div class="factor-bar-info">
+                                            <span>Overtime Compensatory Leaves</span>
+                                            <span class="fw-bold">11%</span>
+                                        </div>
+                                        <div class="factor-progress">
+                                            <div class="progress-bar bg-dark" style="width: 11%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3 pt-2 border-top text-muted small" style="font-size: 0.72rem;">
+                                    <i class="bi bi-cpu text-primary me-1"></i>Automated Shift Balancing Active
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Workforce Roster Table -->
+                    <div class="col-lg-7">
+                        <div class="content-card h-100">
+                            <div class="card-header">
+                                <h6 class="card-title">👥 Workforce Live Roster</h6>
+                                <input type="text" class="form-control form-control-sm" id="roster-search" placeholder="Search associate or role..." style="width: 170px;">
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-custom align-middle" id="roster-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Employee</th>
+                                                <th>Branch</th>
+                                                <th>Role</th>
+                                                <th>Shift Status</th>
+                                                <th>Attendance</th>
+                                                <th>Productivity</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="roster-tbody">
+                                            <!-- Dynamically populated -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- SECTION 7: SETTINGS & DATA INTEGRATION                       -->
+            <!-- ============================================================ -->
+            <section id="settings-section" class="app-section mb-4">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h6 class="card-title">⚙️ Autonomous Engine Rules & ERP Data Synchronization</h6>
+                        <span class="badge bg-success-subtle text-success">ERP Connected (SAP S/4HANA & Tally)</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <h6 class="fw-semibold small text-dark mb-2">Autonomous Decision Constraints</h6>
+                                <ul class="list-unstyled small text-muted lh-lg mb-0" style="font-size: 0.78rem;">
+                                    <li><i class="bi bi-check2 text-success me-2"></i>Lead-time cutoff buffer: <strong>48 hours</strong></li>
+                                    <li><i class="bi bi-check2 text-success me-2"></i>Minimum dynamic safety stock: <strong>1.5x Lead Time Demand</strong></li>
+                                    <li><i class="bi bi-check2 text-success me-2"></i>Strict policy: No manual slider overrides needed</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="fw-semibold small text-dark mb-2">Model Architecture & Retraining</h6>
+                                <ul class="list-unstyled small text-muted lh-lg mb-0" style="font-size: 0.78rem;">
+                                    <li><i class="bi bi-cpu text-primary me-2"></i>Algorithm: <strong>Gradient Boosting + Poisson Regressor</strong></li>
+                                    <li><i class="bi bi-clock-history text-primary me-2"></i>Retraining cycle: <strong>Continuous (6 hrs)</strong></li>
+                                    <li><i class="bi bi-shield-check text-primary me-2"></i>Explainability: <strong>Product-Specific Inventory Drivers</strong></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="fw-semibold small text-dark mb-2">Platform Actions</h6>
+                                <div class="d-flex flex-column gap-2">
+                                    <button class="btn btn-outline-primary btn-sm text-start" onclick="triggerModelRetrain()">
+                                        <i class="bi bi-arrow-clockwise me-1"></i>Force Retrain Demand Engine
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm text-start" onclick="resetDemoData()">
+                                        <i class="bi bi-arrow-counterclockwise me-1"></i>Reset Demo Dataset
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- PURCHASE ORDER DETAILS / PRINT INVOICE MODAL -->
+<!-- ========================================== -->
+<div class="modal fade" id="poModal" tabindex="-1" aria-labelledby="poModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 pt-1" id="poModalPrintArea">
+                <!-- Formal PO Invoice Layout -->
+                <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
+                    <div>
+                        <div class="fw-bold fs-5 text-dark"><i class="bi bi-cpu-fill text-primary me-2"></i>FinSight AI</div>
+                        <div class="small text-muted">OmniRetail Enterprise Pvt Ltd</div>
+                        <div class="small text-muted">GSTIN: 27AABCO1234F1Z8 • Mumbai, MH</div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-primary px-3 py-2 mb-2" id="modal-po-id">PO-2026-0891</span>
+                        <div class="small text-muted">Date: <span id="modal-po-date">2026-09-25</span></div>
+                        <div class="small text-muted">Status: <strong class="text-success" id="modal-po-status">Approved</strong></div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <h6 class="text-muted text-uppercase small fw-bold" style="font-size: 0.72rem;">Vendor / Supplier:</h6>
+                        <div class="fw-bold text-dark small" id="modal-po-supplier">Apex Electronics Ltd</div>
+                        <div class="small text-muted">Fulfillment Hub: Mumbai Central Warehouse</div>
+                        <div class="small text-muted">Lead Time: <span id="modal-po-lead">7 Days</span></div>
+                    </div>
+                    <div class="col-6 text-end">
+                        <h6 class="text-muted text-uppercase small fw-bold" style="font-size: 0.72rem;">Billing & Ship-To:</h6>
+                        <div class="fw-bold text-dark small">OmniRetail Central Distribution</div>
+                        <div class="small text-muted">Unit 4, Industrial Logistics Park</div>
+                        <div class="small text-muted">Navi Mumbai, MH - 400701</div>
+                    </div>
+                </div>
+
+                <table class="table table-bordered mb-3">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Item Description</th>
+                            <th class="text-center">Stock ID</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-end">Unit Price (₹)</th>
+                            <th class="text-end">Amount (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="modal-po-item">Ultra-Wide Curved Monitor 34"</td>
+                            <td class="text-center" id="modal-po-sku">SKU-ELEC-402</td>
+                            <td class="text-center fw-bold" id="modal-po-qty">60</td>
+                            <td class="text-end" id="modal-po-price">₹25,000</td>
+                            <td class="text-end fw-bold" id="modal-po-total">₹1,50,000</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4" class="text-end fw-semibold">Subtotal</td>
+                            <td class="text-end fw-semibold" id="modal-po-subtotal">₹1,50,000</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" class="text-end text-muted small">GST (18%)</td>
+                            <td class="text-end text-muted small" id="modal-po-tax">₹27,000</td>
+                        </tr>
+                        <tr class="table-light">
+                            <td colspan="4" class="text-end fw-bold">Grand Total (₹)</td>
+                            <td class="text-end fw-bold text-primary" id="modal-po-grandtotal">₹1,77,000</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                    <div>
+                        <div class="badge bg-success-subtle text-success small mb-1">
+                            <i class="bi bi-shield-check me-1"></i>Autonomous AI Signature Verified
+                        </div>
+                        <div class="text-muted" style="font-size: 0.68rem;">Authorized by Operations VP (Auto-approval rules met)</div>
+                    </div>
+                    <div class="text-end">
+                        <div id="authorized-user-name" style="font-family: cursive; font-size: 1.15rem; color: #4338ca;">Authorized User</div>
+                        <div class="text-muted" style="font-size: 0.72rem;">Authorized Signatory</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="window.print()">
+                    <i class="bi bi-printer me-1"></i>Print / Export PDF
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="record-sale-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Record product sale</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+            <form id="record-sale-form">
+                <div class="modal-body">
+                    <div id="record-sale-error" class="alert alert-danger d-none" role="alert"></div>
+                    <input type="hidden" name="product_id" id="record-sale-product-id">
+                    <p id="record-sale-product-label" class="fw-semibold mb-2"></p>
+                    <label class="form-label small" for="record-sale-quantity">Quantity sold</label>
+                    <input class="form-control" id="record-sale-quantity" name="quantity" type="number" min="1" step="1" required>
+                    <p id="record-sale-stock-note" class="form-text mb-0"></p>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Record sale</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="add-product-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Add stock item</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+            <form id="dashboard-product-form">
+                <div class="modal-body">
+                    <div id="dashboard-product-error" class="alert alert-danger d-none" role="alert"></div>
+                    <div class="d-flex justify-content-end mb-3"><button type="button" class="btn btn-sm btn-outline-primary" id="toggle-csv-import"><i class="bi bi-filetype-csv me-1"></i>Import many from CSV</button></div>
+                    <section id="csv-import-panel" class="border rounded p-3 mb-3 d-none">
+                        <h6 class="mb-1">Bulk import from CSV</h6>
+                        <p class="small text-muted mb-2">Use columns: name, sku, category, stock, price, daily_sales, lead_days. Each product needs its own unique SKU.</p>
+                        <a class="small d-inline-block mb-2" href="assets/templates/products-import.csv" download>Download CSV template</a>
+                        <input class="form-control" id="products-csv-file" type="file" accept=".csv,text/csv">
+                        <div id="csv-import-status" class="small mt-2" aria-live="polite"></div>
+                        <button type="button" id="import-products-csv" class="btn btn-primary btn-sm mt-2" disabled><i class="bi bi-upload me-1"></i>Import CSV</button>
+                    </section>
+                    <label class="form-label small">Product name</label><input class="form-control mb-2" name="name" required maxlength="120">
+                    <input type="hidden" name="sku">
+                    <div class="row g-2 mb-2"><div class="col"><label class="form-label small" for="dashboard-product-quantity">Quantity</label><input id="dashboard-product-quantity" class="form-control" name="stock" type="number" min="0" step="1" required></div><div class="col"><label class="form-label small">Category</label><select class="form-select" name="category"><option>Electronics</option><option>Clothing</option><option>Groceries</option><option>Furniture</option><option>Toys</option><option>Other</option></select></div></div>
+                    <div class="row g-2 mb-2"><div class="col"><label class="form-label small">Unit price (INR)</label><input class="form-control" name="price" type="number" min="0.01" step="0.01" required></div><div class="col"><label class="form-label small">Average units sold per day</label><input class="form-control" name="daily_sales" type="number" min="0.01" step="0.01" required></div></div>
+                    <div class="row g-2"><div class="col"><label class="form-label small">Supplier lead time (days)</label><input class="form-control" name="lead_days" type="number" min="1" step="1" value="7" required></div></div>
+                    <p class="form-text mb-0 mt-2">Enter the product details and current quantity to add a new stock item to your inventory.</p>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Add stock</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST CONTAINER FOR NOTIFICATIONS -->
+<div class="toast-container-custom">
+    <div id="liveToast" class="toast align-items-center text-white bg-dark border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body d-flex align-items-center">
+                <i class="bi bi-check-circle-fill text-success fs-6 me-2" id="toast-icon"></i>
+                <span id="toast-msg">Action completed successfully!</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap 5 Bundle JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Dashboard Engine JS -->
+<script src="assets/js/dashboard.js?v=20260926-sales-lines"></script>
+
+</body>
+</html>

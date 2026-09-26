@@ -1,0 +1,8 @@
+Flask
+flask-cors
+gunicorn
+joblib
+pandas
+scikit-learn==1.6.1
+xgboost>=2.0,<4
+pymongo[srv]
